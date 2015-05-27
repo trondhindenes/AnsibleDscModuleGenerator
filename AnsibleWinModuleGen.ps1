@@ -94,8 +94,12 @@ Foreach ($credobject in $CredentialObjects)
     
     #Take the _username and _password strings and mash them togheter in a happy PsCredentialObject
     Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value @'
+if ($<CREDNAME>_username)
+{
 $<CREDNAME>_securepassword = $<CREDNAME>_password | ConvertTo-SecureString -asPlainText -Force
 $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_username,$<CREDNAME>_securepassword)
+}
+
 '@
     (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<CREDNAME>", $credobject | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
 
@@ -126,6 +130,7 @@ Get-content "$SourceDir\PlaceHolderFiles\powershell2_dscresourceverify.ps1" -Raw
 
 Get-content "$SourceDir\PlaceHolderFiles\powershell3_dscparser.ps1" -Raw | Add-Content "$GenPath\$TargetModuleName.ps1"
 
+#TODO: Set add code for switching LCM mode
 
 
 #Docs file

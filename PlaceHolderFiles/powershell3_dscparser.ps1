@@ -34,10 +34,10 @@ $Config = @{
     }
 
 
-$Resource = Get-DscResource -Name $resourcename -ErrorAction SilentlyContinue
+$Resource = Get-DscResource -Name $dscresourcename -ErrorAction SilentlyContinue
 if (!$Resource)
 {
-    Fail-Json -obj $result -message "Resource $resourcename not found"
+    Fail-Json -obj $result -message "Resource $dscresourcename not found"
 }
 
 #Convert params to correct datatype and inject
@@ -66,7 +66,7 @@ $attrib.Keys | foreach-object {
         }
         Else
         {
-            Fail-Json -obj $result -message "Property $key in resource $resourcename is not a valid property"
+            Fail-Json -obj $result -message "Property $key in resource $dscresourcename is not a valid property"
         }
         
     }
