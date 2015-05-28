@@ -1,5 +1,5 @@
 $Attributes = $params | get-member | where {$_.MemberTYpe -eq "noteproperty"}  | select -ExpandProperty Name
-$Attributes = $attributes | where {$_.Name -ne "autoinstallmodule"}
+$Attributes = $attributes | where {$_ -ne "autoinstallmodule"}
 
 
 if (!($Attributes))
@@ -20,7 +20,7 @@ $params.Keys | foreach-object {
     }
 #>
 
-$Keys = $params.psobject.Properties | where {$_.MemberTYpe -eq "Noteproperty"} | where {$_.Name -ne "resource_name"} | select -ExpandProperty Name
+$Keys = $params.psobject.Properties | where {$_.MemberTYpe -eq "Noteproperty"} | where {$_.Name -ne "resource_name"} |where {$_.Name -ne "autoinstallmodule"} | select -ExpandProperty Name
 foreach ($key in $keys)
 {
     $Attrib.add($key, ($params.$key))
