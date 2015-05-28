@@ -5,6 +5,7 @@ $GenGuid = [system.guid]::NewGuid().tostring()
 $GenPath = Join-Path $env:temp $genguid
 
 New-item -Path $genpath -ItemType directory | out-null
+Write-Verbose "Genpath is $genpath"
 
 $DscResource = Get-DscResource -Name $DscResourceName
 $DscResourceProperties = $DscResource.Properties
