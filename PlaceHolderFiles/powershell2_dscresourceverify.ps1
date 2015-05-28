@@ -13,7 +13,10 @@ if (!$ResourceExists)
     #Download the module containing the resource if that's allowed
     if ($AutoInstallModule)
     {
-        Find-Module $dscmodulename | install-module -Confirm:$false -Force
+        #USe find-package to auto-install the nuget binaries
+        Find-Package -ForceBootstrap | out-null
+        $res = Find-dscresource $dscresourcename
+        install-module $res.modulename
     }
     
     $ResourceExists = Get-DscResource $dscresourcename -ErrorAction SilentlyContinue
