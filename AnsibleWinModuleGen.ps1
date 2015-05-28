@@ -51,8 +51,20 @@ Foreach ($prop in $DscResourceProperties)
     }
     Else
     {
-        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>_password,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
-        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result'
+        #All custom rules for resources go here
+        if (($PropName -eq "Ensure") -and ($prop.Values -contains "Present"))
+        {
+            #We assume that Ensure is set to "Present" if that's a valid value
+            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>,MANDATORY:False,DEFAULTVALUE:Present,DESCRIPTION:'
+            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $false -default "Present" -resultobj $result'
+        }
+        Else
+        {
+            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
+            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result'
+        }
+
+        
     }
     (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<PROPNAME>", $PropName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
     (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<MANDATORY>", ($Mandatory.ToString()) | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
