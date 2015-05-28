@@ -17,6 +17,7 @@ if (!$ResourceExists)
         Find-Package something -ForceBootstrap -ErrorAction SilentlyContinue | out-null
         $res = Find-dscresource $dscresourcename
         install-module $res.modulename -force
+        Set-Attr $result "AutoInstalledModule" $res.modulename
     }
     
     $ResourceExists = Get-DscResource $dscresourcename -ErrorAction SilentlyContinue
