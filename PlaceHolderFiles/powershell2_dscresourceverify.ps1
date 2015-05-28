@@ -14,9 +14,9 @@ if (!$ResourceExists)
     if ($AutoInstallModule)
     {
         #USe find-package to auto-install the nuget binaries
-        Find-Package -ForceBootstrap | out-null
+        Find-Package something -ForceBootstrap -ErrorAction SilentlyContinue | out-null
         $res = Find-dscresource $dscresourcename
-        install-module $res.modulename
+        install-module $res.modulename -force
     }
     
     $ResourceExists = Get-DscResource $dscresourcename -ErrorAction SilentlyContinue
