@@ -1,4 +1,4 @@
-Param ($DscResourceName,$dscmodulename,$TargetPath,$TargetModuleName,$HelpObject,$CopyrightData, $RequiredDscResourceVersion)
+Param ($DscResourceName,$dscmodulename,$TargetPath,$TargetModuleName,$HelpObject,$CopyrightData, $RequiredDscResourceVersion, $SourceDir)
 
 #Setup a work folder
 $GenGuid = [system.guid]::NewGuid().tostring()
@@ -14,6 +14,7 @@ $DscResourceProperties = $DscResource.Properties
 $DscResourceProperties = $DscResourceProperties | where {$_.Name -ne "DependsOn"}
 
 #Setup the Ansible module (copy placeholder files to $targetPath with names $TargetModuleName.ps1/py)
+
 Copy-item $SourceDir\PlaceHolderFiles\PowerShell1.ps1 -Destination "$GenPath\$TargetModuleName.ps1" -Force
 
 #Add some ansible-specific properties to the resource
@@ -51,20 +52,8 @@ Foreach ($prop in $DscResourceProperties)
     }
     Else
     {
-        #All custom rules for resources go here
-        if (($PropName -eq "Ensure") -and ($prop.Values -contains "Present"))
-        {
-            #We assume that Ensure is set to "Present" if that's a valid value
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>,MANDATORY:False,DEFAULTVALUE:Present,DESCRIPTION:'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $false -default "Present" -resultobj $result'
-        }
-        Else
-        {
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result'
-        }
-
-        
+        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>_password,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
+        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result'
     }
     (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<PROPNAME>", $PropName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
     (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<MANDATORY>", ($Mandatory.ToString()) | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
@@ -147,3 +136,6 @@ Get-content "$SourceDir\PlaceHolderFiles\powershell3_dscparser.ps1" -Raw | Add-C
 
 #Docs file
 Copy-item $SourceDir\PlaceHolderFiles\python1.py -Destination "$GenPath\$TargetModuleName.py" -Force
+
+#Copy to target
+get-childitem "$TargetModuleName*" -Directory $GenPath | copy-item -Destination $TargetPath
