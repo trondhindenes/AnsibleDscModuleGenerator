@@ -138,4 +138,4 @@ Get-content "$SourceDir\PlaceHolderFiles\powershell3_dscparser.ps1" -Raw | Add-C
 Copy-item $SourceDir\PlaceHolderFiles\python1.py -Destination "$GenPath\$TargetModuleName.py" -Force
 
 #Copy to target
-get-childitem "$TargetModuleName*" -Directory $GenPath | copy-item -Destination $TargetPath
+get-childitem -Directory $GenPath | copy-item -Destination $TargetPath
