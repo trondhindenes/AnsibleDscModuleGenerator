@@ -114,8 +114,7 @@ If ($<PROPNAME>)
     {
         
         #Take the _username and _password strings and mash them togheter in a happy PsCredentialObject
-        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value 
-@'
+        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value @'
 if ($<CREDNAME>_username)
 {
 $<CREDNAME>_securepassword = $<CREDNAME>_password | ConvertTo-SecureString -asPlainText -Force
