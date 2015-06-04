@@ -102,10 +102,6 @@ If ($<PROPNAME>)
 
         #Store the credential objects, as we need to parse them into a proper cred object before invoking the dsc resource
         $CredentialObjects += $PropName
-
-        #Add the properties to an input array
-        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$proparray += Get-Attr -obj $params -name <PROPNAME>_password -failifempty $<MANDATORY> -resultobj $result'
-
     }
     
     #Take care of the Credential things
