@@ -11,6 +11,8 @@ Function Invoke-AnsibleWinModuleGen
         $SourceDir = $psscriptroot
         )
     
+    $ErrorActionPreference = "Stop"
+
     #Setup a work folder
     $GenGuid = [system.guid]::NewGuid().tostring()
     $GenPath = Join-Path $env:temp $genguid
@@ -149,9 +151,67 @@ $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_u
     #TODO: Set add code for switching LCM mode
     
     
-    #Docs file
-    Copy-item $SourceDir\PlaceHolderFiles\python1.py -Destination "$GenPath\$TargetModuleName.py" -Force
     
+    #Docs file
+    $DocsFilePath = "$GenPath\$TargetModuleName.py"
+    Copy-item $SourceDir\PlaceHolderFiles\python1.py -Destination $DocsFilePath -Force
+    
+    #Populate docs file
+    $DocsFileAttributeMatches = @()
+    $DocsFileAttributeMatches += get-content "$GenPath\$TargetModuleName.ps1" | Select-String "#ATTRIBUTE"
+
+    $DocsFileAttributes = @()
+    Foreach ($match in $DocsFileAttributeMatches)
+    {
+        $DocsFileAttributes += $match.ToString()
+    }
+
+    
+
+    Add-Content -Path $DocsFilePath -Value @'
+module: <TARGETMODULENAME>
+version_added: <ANSIBLEVERSIONADDED>
+short_description: <SHORTDESCRIPTION>
+description:
+     - <LONGDESCRIPTION>
+options:
+'@
+
+    (Get-content -Path $DocsFilePath -Raw) -replace "<TARGETMODULENAME>", $TargetModuleName | Set-Content -Path $DocsFilePath
+    (Get-content -Path $DocsFilePath -Raw) -replace "<ANSIBLEVERSIONADDED>", $helpobject.AnsibleVersion | Set-Content -Path $DocsFilePath
+    (Get-content -Path $DocsFilePath -Raw) -replace "<SHORTDESCRIPTION>", $HelpObject.Shortdescription | Set-Content -Path $DocsFilePath
+    (Get-content -Path $DocsFilePath -Raw) -replace "<LONGDESCRIPTION>", $HelpObject.LongDescription | Set-Content -Path $DocsFilePath
+
+    Foreach ($docsattribute in $DocsFileAttributes)
+    {
+        $docsattributeobj = $docsattribute.split(",")    
+        $OptionName = $docsattributeobj[0]
+        $OptionName = $OptionName.Replace("#ATTRIBUTE:","")
+        
+        $IsMandatory = $docsattributeobj[1]
+        $IsMandatory = $IsMandatory.Replace("MANDATORY:","")
+
+        $DefaultValue = $docsattributeobj[2]
+        $DefaultValue = $DefaultValue.Replace("DEFAULTVALUE:","")
+        
+        $Description = $docsattributeobj[3]
+        $description = $Description.replace("DESCRIPTION:","")
+
+        Add-Content -Path $DocsFilePath -Value @'
+  <OPTIONNAME>:
+    description:
+      - <DESCRIPTION>
+    required: <MANDATORY>
+    default: <DEFAULTVALUE>
+    aliases: []
+'@
+
+       (Get-content -Path $DocsFilePath -Raw) -replace "<OPTIONNAME>", $OptionName | Set-Content -Path $DocsFilePath
+       (Get-content -Path $DocsFilePath -Raw) -replace "<MANDATORY>", $Mandatory | Set-Content -Path $DocsFilePath
+       (Get-content -Path $DocsFilePath -Raw) -replace "<DEFAULTVALUE>", $DefaultValue | Set-Content -Path $DocsFilePath
+       (Get-content -Path $DocsFilePath -Raw) -replace "<DESCRIPTION>", $Description | Set-Content -Path $DocsFilePath
+    }
+
     #Copy to target
     get-childitem  $GenPath | copy-item -Destination $TargetPath
     
