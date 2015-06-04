@@ -64,6 +64,7 @@ Function Invoke-AnsibleWinModuleGen
         }
         Else
         {
+            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
             Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result'
         }
         (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<PROPNAME>", $PropName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
