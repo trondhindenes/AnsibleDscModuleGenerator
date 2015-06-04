@@ -1,4 +1,4 @@
-Function
+Function Invoke-AnsibleWinModuleGen
 {
     Param (
         $DscResourceName,
