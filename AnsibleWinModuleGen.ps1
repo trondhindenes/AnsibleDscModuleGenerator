@@ -19,7 +19,8 @@ Function Invoke-AnsibleWinModuleGen
     Write-Verbose "Genpath is $genpath"
     
     $DscResource = Get-DscResource -Name $DscResourceName
-    $DscResourceProperties = $DscResource.Properties
+    $DscResourceProperties = @()
+    $DscResourceProperties += $DscResource.Properties
     
     
     #Strip out the dependson prop, we're not using that in Ansible
