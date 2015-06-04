@@ -101,8 +101,7 @@ If ($<PROPNAME>)
         (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<VALIDVALUES>", $ValuesString | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
         (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<PROPNAME>", $PropName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
 
-        #Store the credential objects, as we need to parse them into a proper cred object before invoking the dsc resource
-        $CredentialObjects += $PropName
+
     }
     
     #Take care of the Credential things
