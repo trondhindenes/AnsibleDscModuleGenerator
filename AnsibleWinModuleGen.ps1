@@ -13,6 +13,9 @@ Function Invoke-AnsibleWinModuleGen
     
     $ErrorActionPreference = "Stop"
 
+    #LowerCase for target module name
+    $TargetModuleName = $TargetModuleName.tolower()
+
     #Setup a work folder
     $GenGuid = [system.guid]::NewGuid().tostring()
     $GenPath = Join-Path $env:temp $genguid
