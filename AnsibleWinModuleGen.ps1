@@ -56,15 +56,12 @@ Function Invoke-AnsibleWinModuleGen
             #Credential object
             Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>_username,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
             Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME>_username = Get-Attr -obj $params -name <PROPNAME>_username -failifempty $<MANDATORY> -resultobj $result'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>_password,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME>_password = Get-Attr -obj $params -name <PROPNAME>_password -failifempty $<MANDATORY> -resultobj $result'
             
             #Store the credential objects, as we need to parse them into a proper cred object before invoking the dsc resource
             $CredentialObjects += $PropName
         }
         Else
         {
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>_password,MANDATORY:<MANDATORY>,DEFAULTVALUE:,DESCRIPTION:'
             Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result'
         }
         (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<PROPNAME>", $PropName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
@@ -158,7 +155,7 @@ $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_u
     Copy-item $SourceDir\PlaceHolderFiles\python1.py -Destination "$GenPath\$TargetModuleName.py" -Force
     
     #Copy to target
-    get-childitem $GenPath | copy-item -Destination $TargetPath
+    get-childitem  $GenPath | copy-item -Destination $TargetPath
     
     #Cleanup GenPath
     Remove-item $genpath -recurse -force
