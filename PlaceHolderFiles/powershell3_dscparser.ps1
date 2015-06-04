@@ -1,5 +1,6 @@
 $Attributes = $params | get-member | where {$_.MemberTYpe -eq "noteproperty"}  | select -ExpandProperty Name
 $Attributes = $attributes | where {$_ -ne "autoinstallmodule"}
+$Attributes = $attributes | where {$_ -ne "AutoConfigureLcm"}
 
 
 if (!($Attributes))

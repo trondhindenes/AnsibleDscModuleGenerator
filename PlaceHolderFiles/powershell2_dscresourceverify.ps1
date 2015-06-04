@@ -27,3 +27,38 @@ if (!$ResourceExists)
 {
     Fail-Json $result "Unable to locate DSC module $dscmodulename and/or DSC resource $dscresourcename"
 }
+
+#Check that LCM is in the right status
+$Lcm = Get-DscLocalConfigurationManager
+if (($lcm.RefreshMode) -eq "Disabled")
+{
+    #All good
+}
+Else
+{
+    if ($autoconfigureLcm -eq $true)
+    {
+        #Reconfigure LCM
+        [DscLocalConfigurationManager()]
+        Configuration Meta {
+               Settings {
+                   RefreshMode = $RefreshMode
+               }
+        }
+        try
+        {
+            meta
+            Set-DscLocalConfigurationManager -Path .\Meta  -ErrorAction Stop -ErrorVariable lcmerror
+    
+        }
+        Catch
+        {
+            Fail-json $result "Error reconfiguring LCM" 
+        }
+    }
+    Else
+    {
+        Fail-json $result "DSC Local Configuration Manager is not set to disabled. Set the module option AutoConfigureLcm to Disabled in order to auto-configure LCM" 
+    }
+
+}

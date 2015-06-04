@@ -97,8 +97,16 @@ Function
             }
         $ValuesString = $ValuesString.trim(",")
         
+
         (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<VALIDVALUES>", $ValuesString | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
         (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<PROPNAME>", $PropName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
+
+        #Store the credential objects, as we need to parse them into a proper cred object before invoking the dsc resource
+        $CredentialObjects += $PropName
+
+        #Add the properties to an input array
+        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$proparray += Get-Attr -obj $params -name <PROPNAME>_password -failifempty $<MANDATORY> -resultobj $result'
+
     }
     
     #Take care of the Credential things
@@ -151,4 +159,7 @@ Function
     
     #Copy to target
     get-childitem -Directory $GenPath | copy-item -Destination $TargetPath
+    
+    #Cleanup GenPath
+    Remove-item $genpath -recurse -force
 }
