@@ -158,7 +158,7 @@ $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_u
     Copy-item $SourceDir\PlaceHolderFiles\python1.py -Destination "$GenPath\$TargetModuleName.py" -Force
     
     #Copy to target
-    get-childitem -Directory $GenPath | copy-item -Destination $TargetPath
+    get-childitem $GenPath | copy-item -Destination $TargetPath
     
     #Cleanup GenPath
     Remove-item $genpath -recurse -force
