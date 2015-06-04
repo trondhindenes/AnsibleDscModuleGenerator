@@ -24,7 +24,7 @@ Function Invoke-AnsibleWinModuleGen
     
     
     #Strip out the dependson prop, we're not using that in Ansible
-    $DscResourceProperties = $DscResourceProperties | where {$_.Name -ne "DependsOn"}
+    [array]$DscResourceProperties = $DscResourceProperties | where {$_.Name -ne "DependsOn"}
     
     #Setup the Ansible module (copy placeholder files to $targetPath with names $TargetModuleName.ps1/py)
     
