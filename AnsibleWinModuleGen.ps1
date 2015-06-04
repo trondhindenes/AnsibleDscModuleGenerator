@@ -79,16 +79,16 @@ Function Invoke-AnsibleWinModuleGen
         $Values = $prop.Values
     
         Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value @'
-    If ($<PROPNAME>)
-    {
-        If ((<VALIDVALUES>) -contains $<PROPNAME> ) {
-        }
-        Else
-        {
-            Fail-Json $result "Option <PropName> has invalid value $<PROPNAME>. Valid values are <VALIDVALUES>"
-        }
+If ($<PROPNAME>)
+{
+    If ((<VALIDVALUES>) -contains $<PROPNAME> ) {
     }
-    '@
+    Else
+    {
+        Fail-Json $result "Option <PropName> has invalid value $<PROPNAME>. Valid values are <VALIDVALUES>"
+    }
+}
+'@
         $ValuesString = ""
         Foreach ($value in $values)
             {
@@ -115,13 +115,13 @@ Function Invoke-AnsibleWinModuleGen
         
         #Take the _username and _password strings and mash them togheter in a happy PsCredentialObject
         Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value @'
-    if ($<CREDNAME>_username)
-    {
-    $<CREDNAME>_securepassword = $<CREDNAME>_password | ConvertTo-SecureString -asPlainText -Force
-    $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_username,$<CREDNAME>_securepassword)
-    }
-    
-    '@
+if ($<CREDNAME>_username)
+{
+$<CREDNAME>_securepassword = $<CREDNAME>_password | ConvertTo-SecureString -asPlainText -Force
+$<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_username,$<CREDNAME>_securepassword)
+}
+
+'@
         (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<CREDNAME>", $credobject | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
     
     }
