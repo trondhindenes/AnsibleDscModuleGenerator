@@ -77,8 +77,7 @@ Function Invoke-AnsibleWinModuleGen
         $PropName = $prop.Name
         $Values = $prop.Values
     
-        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value 
-@'
+        Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value @'
 If ($<PROPNAME>)
 {
     If ((<VALIDVALUES>) -contains $<PROPNAME> ) {
