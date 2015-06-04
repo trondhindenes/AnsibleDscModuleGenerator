@@ -48,6 +48,7 @@ Function Invoke-AnsibleWinModuleGen
     $AutoSetLcmProp.Name = "AutoConfigureLcm"
     $AutoSetLcmProp.PropertyType = "[bool]"
     $AutoSetLcmProp.IsMandatory = $false
+    
     $DscResourceProperties += $AutoSetLcmProp
     
     Foreach ($prop in $DscResourceProperties)
