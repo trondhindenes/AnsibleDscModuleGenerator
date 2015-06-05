@@ -158,9 +158,7 @@ $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_u
     
     }
     
-    
-    #Remove blank lines
-    
+  
     #At this point we need the dsc resource to exist on the target node
     Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$DscResourceName = "<DscResourceName>"'
     (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<DscResourceName>", $DscResourceName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
