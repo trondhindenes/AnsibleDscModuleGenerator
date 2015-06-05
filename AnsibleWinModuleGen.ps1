@@ -90,13 +90,6 @@ $<PROPNAME>_username = Get-Attr -obj $params -name <PROPNAME>_username -failifem
 $<PROPNAME>_password = Get-Attr -obj $params -name <PROPNAME>_password -failifempty $<MANDATORY> -resultobj $result
 '@
             
-            <#
-            #Credential object
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>_username;MANDATORY:<MANDATORY>;DEFAULTVALUE:;DESCRIPTION:'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME>_username = Get-Attr -obj $params -name <PROPNAME>_username -failifempty $<MANDATORY> -resultobj $result'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>_password;MANDATORY:<MANDATORY>;DEFAULTVALUE:;DESCRIPTION:'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME>_password = Get-Attr -obj $params -name <PROPNAME>_password -failifempty $<MANDATORY> -resultobj $result'
-            #>
             
             #Store the credential objects, as we need to parse them into a proper cred object before invoking the dsc resource
             $CredentialObjects += $PropName
@@ -105,43 +98,13 @@ $<PROPNAME>_password = Get-Attr -obj $params -name <PROPNAME>_password -failifem
         }
         Else
         {
-            <#
-            Write-Verbose "Prop $propname is not a credential type"
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '#ATTRIBUTE:<PROPNAME>;MANDATORY:<MANDATORY>;DEFAULTVALUE:;DESCRIPTION:'
-            Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result'
-            #>
+            
         }
-        <#
-        (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<PROPNAME>", $PropName | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
-        (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "<MANDATORY>", $Mandatory.ToString() | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
-        if (($prop.defaultvalue) -and ($prop.defaultvalue -ne ""))
-        {
-            Write-Verbose "Defaultvalue is $($prop.defaultvalue)"
-            $defaultvalue = $prop.defaultvalue
-            (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "DEFAULTVALUE:<", "DEFAULTVALUE:$defaultvalue" | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
-        }
-        Else
-        {
-            #(Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "DEFAULTVALUE:<", "DEFAULTVALUE:<NOTHING>" | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
-        }
-
-        if (($prop.Description) -and ($prop.Description -ne ""))
-        {
-            Write-Verbose "Description is $($prop.Description)"
-            $Description = $prop.Description
-            (Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "DESCRIPTION:<", "DESCRIPTION:$Description" | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
-        }
-        Else
-        {
-            #(Get-content -Path "$GenPath\$TargetModuleName.ps1" -Raw) -replace "DESCRIPTION:<", "DESCRIPTION:" | Set-Content -Path "$GenPath\$TargetModuleName.ps1"
-        }
-        #>
 
         $PropContent =$PropContent.Replace("<PROPNAME>", $PropName)
         $PropContent =$PropContent.Replace("<MANDATORY>", $Mandatory.ToString())
         $PropContent =$PropContent.Replace("<DEFAULTVALUE>", "$defaultvalue")
         $PropContent =$PropContent.Replace("<DESCRIPTION>", "$Description")
-
 
         add-content -Path "$GenPath\$TargetModuleName.ps1" -Value $PropContent
     }
@@ -197,7 +160,6 @@ $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_u
     
     
     #Remove blank lines
-    #(get-content "$GenPath\$TargetModuleName.ps1") | where {$_.Trim() -ne ""} | Set-Content "$GenPath\$TargetModuleName.ps1"
     
     #At this point we need the dsc resource to exist on the target node
     Add-Content -path "$GenPath\$TargetModuleName.ps1" -Value '$DscResourceName = "<DscResourceName>"'
@@ -219,10 +181,6 @@ $<CREDNAME> = New-Object System.Management.Automation.PSCredential($<CREDNAME>_u
     Get-content "$SourceDir\PlaceHolderFiles\powershell2_dscresourceverify.ps1" -Raw | Add-Content "$GenPath\$TargetModuleName.ps1"
     
     Get-content "$SourceDir\PlaceHolderFiles\powershell3_dscparser.ps1" -Raw | Add-Content "$GenPath\$TargetModuleName.ps1"
-    
-    #TODO: Set add code for switching LCM mode
-    
-    
     
     #Docs file
     $DocsFilePath = "$GenPath\$TargetModuleName.py"
@@ -255,21 +213,6 @@ $MetaString = $MetaString.Replace("<LONGDESCRIPTION>", $helpobject.LongDescripti
 
 Add-Content -Path $DocsFilePath -Value $MetaString
 
-<#
-    Add-Content -Path $DocsFilePath -Value @'
-module: <TARGETMODULENAME>
-version_added: <ANSIBLEVERSIONADDED>
-short_description: <SHORTDESCRIPTION>
-description:
-     - <LONGDESCRIPTION>
-options:
-'@
-
-    (Get-content -Path $DocsFilePath -Raw) -replace "<TARGETMODULENAME>", $TargetModuleName | Set-Content -Path $DocsFilePath
-    (Get-content -Path $DocsFilePath -Raw) -replace "<ANSIBLEVERSIONADDED>", $helpobject.AnsibleVersion | Set-Content -Path $DocsFilePath
-    (Get-content -Path $DocsFilePath -Raw) -replace "<SHORTDESCRIPTION>", $HelpObject.Shortdescription | Set-Content -Path $DocsFilePath
-    (Get-content -Path $DocsFilePath -Raw) -replace "<LONGDESCRIPTION>", $HelpObject.LongDescription | Set-Content -Path $DocsFilePath
-#>
     Foreach ($docsattribute in $DocsFileAttributes)
     {
         $docsattributeobj = $docsattribute.split(";")    
@@ -301,13 +244,6 @@ options:
         $OptionAttribute = $OptionAttribute.Replace("<DESCRIPTION>", $Description)
 
         Add-Content -Path $DocsFilePath -Value $OptionAttribute
-
-        <#
-       (Get-content -Path $DocsFilePath -Raw) -replace "<OPTIONNAME>", $OptionName | Set-Content -Path $DocsFilePath
-       (Get-content -Path $DocsFilePath -Raw) -replace "<MANDATORY>", $Mandatory | Set-Content -Path $DocsFilePath
-       (Get-content -Path $DocsFilePath -Raw) -replace "<DEFAULTVALUE>", $DefaultValue | Set-Content -Path $DocsFilePath
-       (Get-content -Path $DocsFilePath -Raw) -replace "<DESCRIPTION>", $Description | Set-Content -Path $DocsFilePath
-       #>
     }
 
     #Copy to target
