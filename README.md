@@ -15,7 +15,7 @@ The DSC resource which an Ansible module will be generated from needs to be avai
 The managed node targeted by Ansible must be running the February preview of the WMF version 5 ([https://www.microsoft.com/en-us/download/details.aspx?id=45883](https://www.microsoft.com/en-us/download/details.aspx?id=45883))
 
 ### Usage
-This example generates an Ansible module from the "file" DSC resource, which is a builtin DSC resource:
+The following example generates an Ansible module from the "file" DSC resource, which is a builtin DSC resource:
 
 	#Enable verbose output    
 	$VerbosePreference = "Continue"
@@ -25,6 +25,26 @@ This example generates an Ansible module from the "file" DSC resource, which is 
     Invoke-AnsibleWinModuleGen -DscResourceName "file" -TargetPath "C:\Ansiblemodules" -TargetModuleName "win_file"
 
 This example will produce a win_file.ps1 and a win_file.py file in the "C:\Ansiblemodules" directory.
+
+    
+
+The following example uses the PowerShell package manager to list all available DSC resources in the Powershell gallery and generates a corresponding Ansible module for each DSC resource.
+
+    . .\AnsibleDscModuleGenerator\AnsibleWinModuleGen.ps1
+    $ErrorActionPreference = "Stop"
+    $ress = Find-DscResource
+    foreach ($res in $ress)
+    {
+    	write-output "Processing $($res.Name)"
+    	$modulename = $res.ModuleName
+    	if (!(get-module $modulename -ListAvailable -ErrorAction 0))
+	    {
+	    	Install-Module $modulename -Force
+	    }
+    	Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules" -TargetModuleName "win_$($res.Name)"
+    }
+    
+    
 
 ### Using the Ansible module
 The generated Ansible module can be used like any other Ansible module, either by copying them into the "modules\windows" directory on the control node (where Ansible is installed), or by using the "ANSIBLE_LIBRARY" env variable. 
