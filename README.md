@@ -32,17 +32,17 @@ The following example uses the PowerShell package manager to list all available 
     
     . .\AnsibleDscModuleGenerator\AnsibleWinModuleGen.ps1
     $ErrorActionPreference = "Stop"
-    $VerbosePreference = "SilentlyContinue"
-    $ress = Find-DscResource
+    $VerbosePreference = "Continue"
+    $ress = Find-DscResource -Verbose:$false
     $ress = $ress | sort Name
     foreach ($res in $ress)
     {
-        write-output "Processing $($res.Name)"
+        write-verbose "Processing $($res.Name)"
         $modulename = $res.ModuleName
         
         #CHeck if we have the latest module installed
         $DownloadModule = $true
-        $LocalModule = get-module $modulename -list -ErrorAction SilentlyContinue
+        $LocalModule = get-module $modulename -list -ErrorAction SilentlyContinue -Verbose:$false
     
         if ($LocalModule)
         {
@@ -62,22 +62,28 @@ The following example uses the PowerShell package manager to list all available 
         if ($DownloadModule)
         {
             Write-Verbose "Installing module $modulename"
-            Install-Module $modulename -Force
+            Install-Module $modulename -Force -Verbose:$false
     
             #Module should now be available locally
-            $LocalModule = get-module $modulename -list -ErrorAction Stop
+            $LocalModule = get-module $modulename -list -ErrorAction Stop -Verbose:$false
         }
     
-        $Description = find-module $modulename | select -ExpandProperty Description
-        Write-Output "Adding description:"
-        Write-Output $description
+        $Description = find-module $modulename -Verbose:$false | select -ExpandProperty Description
+        Write-verbose "Adding description:"
+        Write-verbose $description
         $helpobject = "" | Select AnsibleVersion,Shortdescription,LongDescription
-        $helpobject.Shortdescription = $Description
-        Write-Output "Generating ansible files"
+        $helpobject.Longdescription = $Description
+        $helpobject.Shortdescription = "Generated from DSC module $modulename version $($res.Version.ToString())"
+        Write-verbose "Generating ansible files"
         Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules" -TargetModuleName "win_$($res.Name)" -HelpObject $helpobject
-        Write-Output ""
-        Write-Output ""
+        Write-verbose ""
+        Write-verbose ""
+        $description = $null
     }
+
+
+
+
         
     
     
