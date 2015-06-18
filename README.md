@@ -107,4 +107,4 @@ Use the generated .py file to find which options(parameters) are required and wh
 - AutoConfigureLcm: In order to enable the use of Invoke-DscResource, LCM refresh mode needs to be set to "Disabled". This disables any use of push/pull server functionality for DSC. When set to true, LCM will be auto-configured on the node. This is a one-time setting, and has a slight time penalty if set to true for each Ansible play.
 
 ### Modules galore
-Ansible modules have been generated for all available DSC resources in the PowerShell gallery. These can be found here: [https://github.com/trondhindenes/Ansible-Auto-Generated-Modules](https://github.com/trondhindenes/Ansible-Auto-Generated-Modules)
+Ansible modules are generated from time to time for all available DSC resources in the PowerShell gallery. These can be found here (this is done by the second example script above): [https://github.com/trondhindenes/Ansible-Auto-Generated-Modules](https://github.com/trondhindenes/Ansible-Auto-Generated-Modules)
