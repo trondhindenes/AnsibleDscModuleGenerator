@@ -30,7 +30,7 @@ This example will produce a win_file.ps1 and a win_file.py file in the "C:\Ansib
 
 The following example uses the PowerShell package manager to list all available DSC resources in the Powershell gallery and generates a corresponding Ansible module for each DSC resource.
     
-    . .\AnsibleDscModuleGenerator\AnsibleWinModuleGen.ps1
+    . .\AnsibleWinModuleGen.ps1
     $ErrorActionPreference = "Stop"
     $VerbosePreference = "Continue"
     $ress = Find-DscResource -Verbose:$false
@@ -80,6 +80,7 @@ The following example uses the PowerShell package manager to list all available 
         Write-verbose ""
         $description = $null
     }
+
 
 
 
