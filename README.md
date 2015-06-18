@@ -34,38 +34,51 @@ The following example uses the PowerShell package manager to list all available 
     $ErrorActionPreference = "Stop"
     $VerbosePreference = "SilentlyContinue"
     $ress = Find-DscResource
+    $ress = $ress | sort Name
     foreach ($res in $ress)
     {
-	    write-output "Processing $($res.Name)"
-	    $modulename = $res.ModuleName
-	    
-	    #CHeck if we have the latest module installed
-	    $DownloadModule = $true
-	    $LocalModule = get-module $modulename -list -ErrorAction SilentlyContinue
-	    
-	    if ($LocalModule)
-	    {
-		    $VersionCheck = $LocalModule.Version.CompareTo($res.Version)
-		    if ($versioncheck -eq 0)
-		    {
-		    	Write-output "The latest module is already installed locally"
-		    	$DownloadModule = $false
-		    }
-	    	ElseIf ($versioncheck -eq -1)
-		    {
-		    	Write-output "The local module is outdated. Upgrading"
-	    	}
-    	}
+        write-output "Processing $($res.Name)"
+        $modulename = $res.ModuleName
+        
+        #CHeck if we have the latest module installed
+        $DownloadModule = $true
+        $LocalModule = get-module $modulename -list -ErrorAction SilentlyContinue
+    
+        if ($LocalModule)
+        {
+            $VersionCheck = $LocalModule.Version.CompareTo($res.Version)
+            if ($versioncheck -eq 0)
+            {
+                Write-verbose "The latest module is already installed locally"
+                $DownloadModule = $false
+            }
+            ElseIf ($versioncheck -eq -1)
+            {
+                Write-Verbose "The local module is outdated. Upgrading"
+            }
+        }
     
     
-    	if ($DownloadModule)
-	    {
-	    	Write-output "Installing module $modulename"
-	    	Install-Module $modulename -Force
-	    }
-    	Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules" -TargetModuleName "win_$($res.Name)"
+        if ($DownloadModule)
+        {
+            Write-Verbose "Installing module $modulename"
+            Install-Module $modulename -Force
+    
+            #Module should now be available locally
+            $LocalModule = get-module $modulename -list -ErrorAction Stop
+        }
+    
+        $Description = find-module $modulename | select -ExpandProperty Description
+        Write-Output "Adding description:"
+        Write-Output $description
+        $helpobject = "" | Select AnsibleVersion,Shortdescription,LongDescription
+        $helpobject.Shortdescription = $Description
+        Write-Output "Generating ansible files"
+        Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules" -TargetModuleName "win_$($res.Name)" -HelpObject $helpobject
+        Write-Output ""
+        Write-Output ""
     }
-    
+        
     
     
     
