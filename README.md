@@ -29,20 +29,46 @@ This example will produce a win_file.ps1 and a win_file.py file in the "C:\Ansib
     
 
 The following example uses the PowerShell package manager to list all available DSC resources in the Powershell gallery and generates a corresponding Ansible module for each DSC resource.
-
+    
     . .\AnsibleDscModuleGenerator\AnsibleWinModuleGen.ps1
     $ErrorActionPreference = "Stop"
+    $VerbosePreference = "SilentlyContinue"
     $ress = Find-DscResource
     foreach ($res in $ress)
     {
-    	write-output "Processing $($res.Name)"
-    	$modulename = $res.ModuleName
-    	if (!(get-module $modulename -ListAvailable -ErrorAction 0))
+	    write-output "Processing $($res.Name)"
+	    $modulename = $res.ModuleName
+	    
+	    #CHeck if we have the latest module installed
+	    $DownloadModule = $true
+	    $LocalModule = get-module $modulename -list -ErrorAction SilentlyContinue
+	    
+	    if ($LocalModule)
 	    {
+		    $VersionCheck = $LocalModule.Version.CompareTo($res.Version)
+		    if ($versioncheck -eq 0)
+		    {
+		    	Write-output "The latest module is already installed locally"
+		    	$DownloadModule = $false
+		    }
+	    	ElseIf ($versioncheck -eq -1)
+		    {
+		    	Write-output "The local module is outdated. Upgrading"
+	    	}
+    	}
+    
+    
+    	if ($DownloadModule)
+	    {
+	    	Write-output "Installing module $modulename"
 	    	Install-Module $modulename -Force
 	    }
     	Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules" -TargetModuleName "win_$($res.Name)"
     }
+    
+    
+    
+    
     
     
 
