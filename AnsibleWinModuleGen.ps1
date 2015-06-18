@@ -23,7 +23,7 @@ Function Invoke-AnsibleWinModuleGen
     New-item -Path $genpath -ItemType directory | out-null
     Write-Verbose "Genpath is $genpath"
     
-    $DscResource = Get-DscResource -Name $DscResourceName
+    $DscResource = Get-DscResource -Name $DscResourceName -Verbose:$false
     $DscResourceProperties = @()
     $DscResourceProperties += $DscResource.Properties
     
@@ -51,6 +51,8 @@ Function Invoke-AnsibleWinModuleGen
     $AutoInstallModuleProp.IsMandatory = $false
     $AutoInstallModuleProp.DefaultValue = "false"
     $AutoInstallModuleProp.Description = "If true, the required dsc resource/module will be auto-installed using the Powershell package manager"
+    $AutoInstallModuleProp.Values = "true","false"
+
     $DscResourceProperties += $AutoInstallModuleProp
     
     $AutoSetLcmProp = "" | Select Name, PropertyType, IsMandatory, Values, DefaultValue, Description
@@ -59,6 +61,8 @@ Function Invoke-AnsibleWinModuleGen
     $AutoInstallModuleProp.DefaultValue = "false"
     $AutoSetLcmProp.IsMandatory = $false
     $AutoSetLcmProp.Description = "If true, LCM will be auto-configured for directly invoking DSC resources (which is a one-time requirement for Ansible DSC modules)"
+    $AutoSetLcmProp.Values = "true","false"
+    
     $DscResourceProperties += $AutoSetLcmProp
     
     Foreach ($prop in $DscResourceProperties)
@@ -77,16 +81,16 @@ Function Invoke-AnsibleWinModuleGen
 
         #Build the content object
         $PropContent = @'
-#ATTRIBUTE:<PROPNAME>;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>
+#ATTRIBUTE:<PROPNAME>;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>;CHOICES:<CHOICES>
 $<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result
 '@
 
         if ($prop.PropertyType -eq "[PSCredential]")
         {
                     $PropContent = @'
-#ATTRIBUTE:<PROPNAME>_username;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>
+#ATTRIBUTE:<PROPNAME>_username;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>;CHOICES:<CHOICES>
 $<PROPNAME>_username = Get-Attr -obj $params -name <PROPNAME>_username -failifempty $<MANDATORY> -resultobj $result
-#ATTRIBUTE:<PROPNAME>_password;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>
+#ATTRIBUTE:<PROPNAME>_password;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>;CHOICES:<CHOICES>
 $<PROPNAME>_password = Get-Attr -obj $params -name <PROPNAME>_password -failifempty $<MANDATORY> -resultobj $result
 '@
             
@@ -105,8 +109,17 @@ $<PROPNAME>_password = Get-Attr -obj $params -name <PROPNAME>_password -failifem
         $PropContent =$PropContent.Replace("<MANDATORY>", $Mandatory.ToString())
         $PropContent =$PropContent.Replace("<DEFAULTVALUE>", "$defaultvalue")
         $PropContent =$PropContent.Replace("<DESCRIPTION>", "$Description")
-
+        if ($prop.values -gt 0)
+        {
+            $PropContent =$PropContent.Replace("<CHOICES>", $prop.Values -join ",")
+        }
+        Else
+        {
+            $PropContent =$PropContent.Replace("<CHOICES>","")
+        }
+        
         add-content -Path "$GenPath\$TargetModuleName.ps1" -Value $PropContent
+        
     }
     
     #For properties that have valid values, ensure that the supplied params are valid:
@@ -127,6 +140,10 @@ If ($<PROPNAME>)
     }
 }
 '@
+
+    $PropContent =$PropContent.Replace("<DESCRIPTION>", "$Description")
+
+
         $ValuesString = ""
         Foreach ($value in $values)
             {
@@ -213,6 +230,7 @@ Add-Content -Path $DocsFilePath -Value $MetaString
 
     Foreach ($docsattribute in $DocsFileAttributes)
     {
+        Write-verbose "Processing $docsattribute"
         $docsattributeobj = $docsattribute.split(";")    
         $OptionName = $docsattributeobj[0]
         $OptionName = $OptionName.Replace("#ATTRIBUTE:","")
@@ -225,6 +243,9 @@ Add-Content -Path $DocsFilePath -Value $MetaString
         
         $Description = $docsattributeobj[3]
         $description = $Description.replace("DESCRIPTION:","")
+
+        $choices = $docsattributeobj[4]
+        $choices = $choices.replace("CHOICES:","")
 
         $OptionAttribute =  @'
   <OPTIONNAME>:
@@ -241,12 +262,35 @@ Add-Content -Path $DocsFilePath -Value $MetaString
         $OptionAttribute = $OptionAttribute.Replace("<DEFAULTVALUE>", $DefaultValue)
         $OptionAttribute = $OptionAttribute.Replace("<DESCRIPTION>", $Description)
 
+        if ($choices -ne "")
+            {
+            #Add the choices thingy to the help file
+            $optionAttribute += "    choices:" + "`r"
+
+            $choicearray = $choices.split(",")
+            $counter = 1
+            foreach ($choice in $choicearray)
+            {
+                $OptionAttribute += "      - $choice" + "`r"
+            }
+        }
+        Else
+        {
+            #$OptionAttribute = $OptionAttribute.replace("    choices:","")
+        }
+
+
+
+
         Add-Content -Path $DocsFilePath -Value $OptionAttribute
     }
 
     #Copy to target
+    Write-Verbose "copying generated files to $targetpath"
     get-childitem  $GenPath | copy-item -Destination $TargetPath
     
     #Cleanup GenPath
+    Write-Verbose "Cleaning up $genpath"
     Remove-item $genpath -recurse -force
+    Write-Verbose "finished"
 }
