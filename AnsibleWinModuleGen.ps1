@@ -1,5 +1,6 @@
 Function Invoke-AnsibleWinModuleGen
 {
+    [CmdletBinding()]
     Param (
         $DscResourceName,
         $dscmodulename,
@@ -11,7 +12,7 @@ Function Invoke-AnsibleWinModuleGen
         $SourceDir = $psscriptroot
         )
     
-    $ErrorActionPreference = "Stop"
+    #$ErrorActionPreference = "Stop"
 
     #LowerCase for target module name
     $TargetModuleName = $TargetModuleName.tolower()
