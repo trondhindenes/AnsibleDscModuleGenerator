@@ -21,7 +21,7 @@ $ResourceExists = Get-DscResource $dscresourcename -ErrorAction SilentlyContinue
 if (!$ResourceExists)
 {
     #Download the module containing the resource if that's allowed
-    if ($AutoInstallModule)
+    if ($AutoInstallModule | convertto-bool)
     {
         #USe find-package to auto-install the nuget binaries
         Find-Package something -ForceBootstrap -ErrorAction SilentlyContinue | out-null
@@ -46,7 +46,7 @@ if (($lcm.RefreshMode) -eq "Disabled")
 }
 Else
 {
-    if ($autoconfigureLcm -eq $true)
+    if (($autoconfigureLcm | convertto-bool) -eq $true)
     {
         #Reconfigure LCM
         [DscLocalConfigurationManager()]
