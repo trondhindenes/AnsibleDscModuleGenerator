@@ -48,6 +48,7 @@ Else
 {
     if (($autoconfigureLcm | convertto-bool) -eq $true)
     {
+        $refreshmode = "Disabled"
         #Reconfigure LCM
         [DscLocalConfigurationManager()]
         Configuration Meta {
