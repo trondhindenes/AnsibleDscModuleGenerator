@@ -65,7 +65,7 @@ Function Invoke-AnsibleWinModuleGen
     $AutoSetLcmProp = "" | Select Name, PropertyType, IsMandatory, Values, DefaultValue, Description
     $AutoSetLcmProp.Name = "AutoConfigureLcm"
     $AutoSetLcmProp.PropertyType = "[bool]"
-    $AutoInstallModuleProp.DefaultValue = "false"
+    $AutoSetLcmProp.DefaultValue = "false"
     $AutoSetLcmProp.IsMandatory = $false
     $AutoSetLcmProp.Description = "If true, LCM will be auto-configured for directly invoking DSC resources (which is a one-time requirement for Ansible DSC modules)"
     $AutoSetLcmProp.Values = "true","false"
