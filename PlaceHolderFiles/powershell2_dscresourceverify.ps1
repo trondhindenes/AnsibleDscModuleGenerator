@@ -58,7 +58,7 @@ Else
         }
         try
         {
-            meta
+            & meta
             Set-DscLocalConfigurationManager -Path .\Meta  -ErrorAction Stop -ErrorVariable lcmerror
     
         }
