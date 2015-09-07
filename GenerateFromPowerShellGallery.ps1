@@ -43,7 +43,7 @@ foreach ($res in $ress)
     $helpobject.Longdescription = $Description
     $helpobject.Shortdescription = "Generated from DSC module $modulename version $($res.Version.ToString()) at $((get-date).tostring())"
     Write-verbose "Generating ansible files"
-    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject -erroraction "Continue"
+    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules\$modulename" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject  -erroraction "Continue"
     if ($downloadmodule)
     {
         write-verbose "Removing module $modulename"

@@ -28,6 +28,12 @@ Function Invoke-AnsibleWinModuleGen
     $DscResourceProperties = @()
     $DscResourceProperties += $DscResource.Properties
     
+    #Create target path
+    if (!(test-path $TargetPath -PathType Container))
+    {
+        new-item $TargetPath -force -itemtype "Directory" | out-null
+        
+    }
     
     #Strip out the dependson prop, we're not using that in Ansible
     [array]$DscResourceProperties = $DscResourceProperties | where {$_.Name -ne "DependsOn"}
