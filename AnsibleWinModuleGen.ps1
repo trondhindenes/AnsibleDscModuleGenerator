@@ -87,11 +87,21 @@ Function Invoke-AnsibleWinModuleGen
         Write-Verbose "Prop is $propname, mandatory: $mandatory"
 
         #Build the content object
-        $PropContent = @'
+        if (($prop.DefaultValue) -and ($prop.DefaultValue -ne $null))
+        {
+            #Prop has a default value
+            $PropContent = @'
+#ATTRIBUTE:<PROPNAME>;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>;CHOICES:<CHOICES>
+$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result -default <DEFAULTVALUE>
+'@            
+        }
+        Else
+        {
+            $PropContent = @'
 #ATTRIBUTE:<PROPNAME>;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>;CHOICES:<CHOICES>
 $<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result
 '@
-
+        }
         if ($prop.PropertyType -eq "[PSCredential]")
         {
                     $PropContent = @'
