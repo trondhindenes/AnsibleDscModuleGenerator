@@ -30,7 +30,7 @@ if (!$ResourceExists)
         Set-Attr $result "AutoInstalledModule" $res.modulename
     }
     
-    $ResourceExists = Get-DscResource $dscresourcename -list -ErrorAction SilentlyContinue
+    $ResourceExists = Get-DscResource $dscresourcename -ErrorAction SilentlyContinue
 }
 
 if (!$ResourceExists)
