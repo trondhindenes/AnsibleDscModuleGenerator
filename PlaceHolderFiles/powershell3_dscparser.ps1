@@ -145,18 +145,16 @@ $attrib.Keys | foreach-object {
 try
 {
     #Invoke WMF5 production preview differently than feb preview
-    $TargetVersion = [version]::new("5.0.10000.10000")
-    is ($PSVersionTable.PSVersion.CompareTo($TargetVersion) -eq 1)
+    $TargetVersion = [version]::new("5.0.10514.6")
+    if ($PSVersionTable.PSVersion.CompareTo($TargetVersion) -gt 0)
     {
-        #Current hosts version is higher. Use modulename when invoking
+        #Current hosts version is production prevoew or higher. Use modulename when invoking.
         $Params = @{"Modulename"=$resource.Modulename}
     }
     else
     {
         $Params = @{}
     }
-
-
 
     $TestResult = Invoke-DscResource @Config -Method Test @params -ErrorVariable TestError -ErrorAction SilentlyContinue
     if (!($TestResult))
