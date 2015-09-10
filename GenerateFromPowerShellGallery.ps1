@@ -14,6 +14,10 @@ foreach ($res in $ress)
 
     if ($LocalModule)
     {
+        if ($localmodule.count -gt 1)
+        {
+            $localmodule = $localmodule | Sort-Object version -Descending | select -first 1
+        }
         $VersionCheck = $LocalModule.Version.CompareTo($res.Version)
         if ($versioncheck -eq 0)
         {
