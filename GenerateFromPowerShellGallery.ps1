@@ -46,7 +46,7 @@ foreach ($res in $ress)
     $helpobject = "" | Select AnsibleVersion,Shortdescription,LongDescription
     $helpobject.Longdescription = $Description
     $helpobject.Shortdescription = "Generated from DSC module $modulename version $($res.Version.ToString()) at $((get-date).tostring())"
-    Write-verbose "Generating ansible files"
+    Write-verbose "Generating ansible module files"
     Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules\$modulename" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject  -erroraction "Continue"
     if ($downloadmodule)
     {
