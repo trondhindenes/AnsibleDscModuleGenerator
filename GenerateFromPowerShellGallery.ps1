@@ -6,7 +6,7 @@ $ress = $ress | sort Name
 foreach ($res in $ress)
 {
     write-verbose "Processing $($res.Name)"
-    $modulename = $res.ModuleName
+    $modulename = $res.ModuleName.ToLower()
     
     #CHeck if we have the latest module installed
     $DownloadModule = $true
