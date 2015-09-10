@@ -146,7 +146,7 @@ try
 {
     #Invoke WMF5 production preview differently than feb preview
     $TargetVersion = [version]::new("5.0.10514.6")
-    if ($PSVersionTable.PSVersion.CompareTo($TargetVersion) -gt 0)
+    if ($PSVersionTable.PSVersion.CompareTo($TargetVersion) -ge 0)
     {
         #Current hosts version is production prevoew or higher. Use modulename when invoking.
         $Params = @{"Modulename"=$resource.Modulename}
