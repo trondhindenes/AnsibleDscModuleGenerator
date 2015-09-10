@@ -157,7 +157,7 @@ try
     }
 
     $TestResult = Invoke-DscResource @Config -Method Test @params -ErrorVariable TestError -ErrorAction SilentlyContinue
-    if (!($TestResult))
+    if ($TestError)
     {
        throw ($TestError[0].Exception.Message)
     }
