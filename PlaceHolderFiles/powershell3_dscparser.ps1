@@ -144,14 +144,26 @@ $attrib.Keys | foreach-object {
 
 try
 {
-    $TestResult = Invoke-DscResource @Config -Method Test -ErrorVariable TestError -ErrorAction SilentlyContinue
-    if (!($TestResult))
+    #Invoke WMF5 production preview differently than feb preview
+    $TargetVersion = [version]::new("5.0.10514.6")
+    if ($PSVersionTable.PSVersion.CompareTo($TargetVersion) -ge 0)
+    {
+        #Current hosts version is production prevoew or higher. Use modulename when invoking.
+        $Params = @{"Modulename"=$resource.Modulename}
+    }
+    else
+    {
+        $Params = @{}
+    }
+
+    $TestResult = Invoke-DscResource @Config -Method Test @params -ErrorVariable TestError -ErrorAction SilentlyContinue
+    if ($TestError)
     {
        throw ($TestError[0].Exception.Message)
     }
     ElseIf (($testResult.InDesiredState) -ne $true) 
     {
-        Invoke-DscResource -Method Set @Config -ErrorVariable SetError -ErrorAction SilentlyContinue
+        Invoke-DscResource -Method Set @Config  @params -ErrorVariable SetError -ErrorAction SilentlyContinue
         Set-Attr $result "changed" $true
         if ($SetError)
         {

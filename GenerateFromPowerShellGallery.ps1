@@ -6,7 +6,7 @@ $ress = $ress | sort Name
 foreach ($res in $ress)
 {
     write-verbose "Processing $($res.Name)"
-    $modulename = $res.ModuleName
+    $modulename = $res.ModuleName.ToLower()
     
     #CHeck if we have the latest module installed
     $DownloadModule = $true
@@ -14,6 +14,10 @@ foreach ($res in $ress)
 
     if ($LocalModule)
     {
+        if ($localmodule.count -gt 1)
+        {
+            $localmodule = $localmodule | Sort-Object version -Descending | select -first 1
+        }
         $VersionCheck = $LocalModule.Version.CompareTo($res.Version)
         if ($versioncheck -eq 0)
         {
@@ -42,8 +46,8 @@ foreach ($res in $ress)
     $helpobject = "" | Select AnsibleVersion,Shortdescription,LongDescription
     $helpobject.Longdescription = $Description
     $helpobject.Shortdescription = "Generated from DSC module $modulename version $($res.Version.ToString()) at $((get-date).tostring())"
-    Write-verbose "Generating ansible files"
-    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject
+    Write-verbose "Generating ansible module files"
+    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules\$modulename" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject  -erroraction "Continue"
     if ($downloadmodule)
     {
         write-verbose "Removing module $modulename"

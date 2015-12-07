@@ -12,7 +12,7 @@ The Powershell module in this repo auto-generates the required Ansible module fo
 ### Prerequisites
 The DSC resource which an Ansible module will be generated from needs to be available on the local computer (used for generating the Ansible module).
 
-The managed node targeted by Ansible must be running the February preview of the WMF version 5 ([https://www.microsoft.com/en-us/download/details.aspx?id=45883](https://www.microsoft.com/en-us/download/details.aspx?id=45883))
+The managed node targeted by Ansible must be running the February preview of the WMF version 5 or newer ([https://www.microsoft.com/en-us/download/details.aspx?id=45883](https://www.microsoft.com/en-us/download/details.aspx?id=45883))
 
 ### Usage
 The following example generates an Ansible module from the "file" DSC resource, which is a builtin DSC resource:

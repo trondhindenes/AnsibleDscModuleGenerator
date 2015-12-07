@@ -1,5 +1,6 @@
 Function Invoke-AnsibleWinModuleGen
 {
+    [CmdletBinding()]
     Param (
         $DscResourceName,
         $dscmodulename,
@@ -11,7 +12,7 @@ Function Invoke-AnsibleWinModuleGen
         $SourceDir = $psscriptroot
         )
     
-    $ErrorActionPreference = "Stop"
+    #$ErrorActionPreference = "Stop"
 
     #LowerCase for target module name
     $TargetModuleName = $TargetModuleName.tolower()
@@ -27,6 +28,12 @@ Function Invoke-AnsibleWinModuleGen
     $DscResourceProperties = @()
     $DscResourceProperties += $DscResource.Properties
     
+    #Create target path
+    if (!(test-path $TargetPath -PathType Container))
+    {
+        new-item $TargetPath -force -itemtype "Directory" | out-null
+        
+    }
     
     #Strip out the dependson prop, we're not using that in Ansible
     [array]$DscResourceProperties = $DscResourceProperties | where {$_.Name -ne "DependsOn"}
@@ -58,7 +65,7 @@ Function Invoke-AnsibleWinModuleGen
     $AutoSetLcmProp = "" | Select Name, PropertyType, IsMandatory, Values, DefaultValue, Description
     $AutoSetLcmProp.Name = "AutoConfigureLcm"
     $AutoSetLcmProp.PropertyType = "[bool]"
-    $AutoInstallModuleProp.DefaultValue = "false"
+    $AutoSetLcmProp.DefaultValue = "false"
     $AutoSetLcmProp.IsMandatory = $false
     $AutoSetLcmProp.Description = "If true, LCM will be auto-configured for directly invoking DSC resources (which is a one-time requirement for Ansible DSC modules)"
     $AutoSetLcmProp.Values = "true","false"
@@ -80,11 +87,21 @@ Function Invoke-AnsibleWinModuleGen
         Write-Verbose "Prop is $propname, mandatory: $mandatory"
 
         #Build the content object
-        $PropContent = @'
+        if (($prop.DefaultValue) -and ($prop.DefaultValue -ne $null))
+        {
+            #Prop has a default value
+            $PropContent = @'
+#ATTRIBUTE:<PROPNAME>;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>;CHOICES:<CHOICES>
+$<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result -default <DEFAULTVALUE>
+'@            
+        }
+        Else
+        {
+            $PropContent = @'
 #ATTRIBUTE:<PROPNAME>;MANDATORY:<MANDATORY>;DEFAULTVALUE:<DEFAULTVALUE>;DESCRIPTION:<DESCRIPTION>;CHOICES:<CHOICES>
 $<PROPNAME> = Get-Attr -obj $params -name <PROPNAME> -failifempty $<MANDATORY> -resultobj $result
 '@
-
+        }
         if ($prop.PropertyType -eq "[PSCredential]")
         {
                     $PropContent = @'
