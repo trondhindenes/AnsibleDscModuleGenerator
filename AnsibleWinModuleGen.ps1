@@ -25,6 +25,10 @@ Function Invoke-AnsibleWinModuleGen
     Write-Verbose "Genpath is $genpath"
     
     $DscResource = Get-DscResource -Name $DscResourceName -Verbose:$false
+    if (!$DscResource)
+    {
+        return
+    }
     $DscResourceProperties = @()
     $DscResourceProperties += $DscResource.Properties
     
@@ -305,6 +309,17 @@ Add-Content -Path $DocsFilePath -Value $MetaString
     #Copy to target
     Write-Verbose "copying generated files to $targetpath"
     get-childitem  $GenPath | copy-item -Destination $TargetPath
+    
+    #Unload module
+    if ($DscResource.ModuleName)
+    {
+        if (Get-Module ($DscResource.ModuleName) )
+        {
+            Remove-Module ($DscResource.ModuleName)    
+        }
+            
+    }
+    
     
     #Cleanup GenPath
     Write-Verbose "Cleaning up $genpath"
