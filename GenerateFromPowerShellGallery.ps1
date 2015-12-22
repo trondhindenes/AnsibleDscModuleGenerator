@@ -10,9 +10,19 @@ foreach ($Module in $Modules)
     
     write-verbose "Processing $Module"
     $modulename = $Module
-    if ($badmodules -contains $Module)
+    $OnlineModule = Find-Module $ModuleName
+    $IsBad = $false
+    Foreach ($BadModule in $BadModules)
     {
-        Write-verbose "Not processing $module as it is in the badmodules list"
+        if ($Module -like "$BadModule")
+        {
+            $IsBad = $true
+        }
+    }
+    
+    if ($Isbad -eq $true)
+    {
+        Write-output "Bad module"
     }
     Else
     {
@@ -26,7 +36,7 @@ foreach ($Module in $Modules)
                 {
                     $localmodule = $localmodule | Sort-Object version -Descending | select -first 1
                 }
-                $VersionCheck = $LocalModule.Version.CompareTo($res.Version)
+                $VersionCheck = $LocalModule.Version.CompareTo($OnlineModule.Version)
                 if ($versioncheck -eq 0)
                 {
                     Write-verbose "The latest module is already installed locally"
@@ -55,6 +65,7 @@ foreach ($Module in $Modules)
                 $modulename = $res.ModuleName.ToLower()
                 
                 #CHeck if we have the latest module installed
+                <#
                 $DownloadModule = $true
                 $LocalModule = get-module $modulename -list -ErrorAction SilentlyContinue -Verbose:$false
 
@@ -85,7 +96,7 @@ foreach ($Module in $Modules)
                     #Module should now be available locally
                     $LocalModule = get-module $modulename -list -ErrorAction Stop -Verbose:$false
                 }
-
+                #>
                 $Description = find-module $modulename -Verbose:$false | select -ExpandProperty Description
                 Write-verbose "Adding description:"
                 Write-verbose $description
@@ -116,12 +127,16 @@ foreach ($Module in $Modules)
                 {
                     
                     write-verbose "Removing module $modulename"
+                    Uninstall-Module $modulename
+                    
+                    <#
                     remove-item ($LocalModule.ModuleBase) -Recurse -Force -ErrorAction SilentlyContinue -ErrorVariable RemoveErr
                     
                     if ($RemoveErr)
                     {
                         Write-warning "Could not remove module $modulename"
                     }
+                    #>
                     
                 }
         
