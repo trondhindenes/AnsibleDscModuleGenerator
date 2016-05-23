@@ -38,6 +38,7 @@ Function Invoke-AnsibleWinModuleGen
     #Strip out the dependson prop, we're not using that in Ansible
     [array]$DscResourceProperties = $DscResourceProperties | where {$_.Name -ne "DependsOn"}
     
+    
     #add empty description/defaultvalue fields
     $DscResourceProperties | foreach {$_ | Add-Member -MemberType NoteProperty -Name Description -Value "" -force}
     $DscResourceProperties | foreach {$_ | Add-Member -MemberType NoteProperty -Name DefaultValue -Value "" -force}
