@@ -161,7 +161,15 @@ try
     if ($PSVersionTable.PSVersion.CompareTo($TargetVersion) -ge 0)
     {
         #Current hosts version is production prevoew or higher. Use modulename when invoking.
-        $Params = @{"Modulename"=$resource.Modulename}
+        if ($resource.ModuleName -ne $null)
+        {
+            $Params = @{"Modulename"=$resource.Modulename}    
+        }
+        else 
+        {
+            $Params = @{"Modulename"="PSDesiredStateConfiguration"}    
+        }
+        
     }
     else
     {
