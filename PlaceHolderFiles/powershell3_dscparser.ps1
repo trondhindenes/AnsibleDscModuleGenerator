@@ -177,8 +177,7 @@ try
     {
         if ($CheckMode -eq $False)
         {
-            $SetResult = Invoke-DscResource -Method Set @Config  @params -ErrorVariable SetError -ErrorAction SilentlyContinue
-            set-attr -obj $result -name Result -value $SetResult  
+            $Set = Invoke-DscResource -Method Set @Config  @params -ErrorVariable SetError -ErrorAction SilentlyContinue
         }
         
         Set-Attr $result "changed" $true
