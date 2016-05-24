@@ -177,11 +177,12 @@ try
     {
         if ($CheckMode -eq $False)
         {
-            Invoke-DscResource -Method Set @Config  @params -ErrorVariable SetError -ErrorAction SilentlyContinue    
+            $SetResult = Invoke-DscResource -Method Set @Config  @params -ErrorVariable SetError -ErrorAction SilentlyContinue
+            set-attr -obj $result -name Result -value $SetResult  
         }
         
         Set-Attr $result "changed" $true
-        if (get-variable | where {$_.Name -eq "seterror"})
+        if ((get-variable | where {$_.Name -eq "seterror"}) -and ($SetError.Count -gt 0))
         {
            throw ($SetError[0].Exception.Message)
         }
