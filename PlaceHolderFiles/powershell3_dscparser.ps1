@@ -22,6 +22,14 @@ $params.Keys | foreach-object {
     }
 #>
 
+$CheckMode = $False
+$CheckFlag = $params.psobject.Properties | where {$_.Name -eq "_ansible_check_mode"}
+if ($CheckFlag)
+{
+    if ($CheckFlag | convertto-Bool -eq $True)
+    $CheckMode = $True
+}
+
 $Keys = $params.psobject.Properties | where {$_.MemberTYpe -eq "Noteproperty"} | where {$_.Name -ne "resource_name"} |where {$_.Name -ne "autoinstallmodule"} |where {$_.Name -ne "autoconfigurelcm"} | where {$_.Name -notlike "_ansible*"} |  select -ExpandProperty Name
 foreach ($key in $keys)
 {
