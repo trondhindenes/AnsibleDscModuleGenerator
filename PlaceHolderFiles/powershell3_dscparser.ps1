@@ -26,7 +26,7 @@ $CheckMode = $False
 $CheckFlag = $params.psobject.Properties | where {$_.Name -eq "_ansible_check_mode"}
 if ($CheckFlag)
 {
-    if (($CheckFlag | convertto-Bool) -eq $True)
+    if (($CheckFlag.Value) -eq $True)
     {
         $CheckMode = $True    
     }
@@ -175,7 +175,11 @@ try
     }
     ElseIf (($testResult.InDesiredState) -ne $true) 
     {
-        Invoke-DscResource -Method Set @Config  @params -ErrorVariable SetError -ErrorAction SilentlyContinue
+        if ($CheckMode -eq $False)
+        {
+            Invoke-DscResource -Method Set @Config  @params -ErrorVariable SetError -ErrorAction SilentlyContinue    
+        }
+        
         Set-Attr $result "changed" $true
         if ($SetError)
         {
