@@ -26,7 +26,7 @@ $CheckMode = $False
 $CheckFlag = $params.psobject.Properties | where {$_.Name -eq "_ansible_check_mode"}
 if ($CheckFlag)
 {
-    if ($CheckFlag | convertto-Bool -eq $True)
+    if (($CheckFlag | convertto-Bool) -eq $True)
     {
         $CheckMode = $True    
     }
