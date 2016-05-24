@@ -181,7 +181,7 @@ try
         }
         
         Set-Attr $result "changed" $true
-        if ($SetError)
+        if (get-variable | where {$_.Name -eq "seterror"})
         {
            throw ($SetError[0].Exception.Message)
         }
