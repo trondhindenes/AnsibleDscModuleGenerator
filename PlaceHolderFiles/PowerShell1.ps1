@@ -19,7 +19,7 @@
 
 # WANT_JSON
 # POWERSHELL_COMMON
-
+Set-StrictMode -Off
 $params = Parse-Args $args -supports_check_mode $true
 $result = New-Object psobject
 Set-Attr $result "changed" $false
