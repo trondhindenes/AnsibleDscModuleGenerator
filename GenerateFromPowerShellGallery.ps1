@@ -3,6 +3,11 @@ $ErrorActionPreference = "Stop"
 $VerbosePreference = "Continue"
 $ress = Find-DscResource -Verbose:$false
 $ress = $ress | sort Name
+
+
+#add the builtin resources
+$ress += Get-DscResource -Module PSDesiredStateConfiguration
+
 foreach ($res in $ress)
 {
     write-verbose "Processing $($res.Name)"
@@ -47,7 +52,7 @@ foreach ($res in $ress)
     $helpobject.Longdescription = $Description
     $helpobject.Shortdescription = "Generated from DSC module $modulename version $($res.Version.ToString()) at $((get-date).tostring())"
     Write-verbose "Generating ansible module files"
-    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\AnsibleModules\$modulename" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject  -erroraction "Continue"
+    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\Users\thadministrator\Documents\Ansible-Auto-Generated-Modules\$modulename" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject  -erroraction "Continue"
     if ($downloadmodule)
     {
         write-verbose "Removing module $modulename"
