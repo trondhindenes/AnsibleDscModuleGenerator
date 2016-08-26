@@ -2,7 +2,7 @@
 A Powershell module for generating Ansible modules from PowerShell DSC resources
 
 ### What it does
-There is already a tremendous amount of DSC resources available for configuring various aspects of a Windows computer. With the preview release of Powershell version 5 (WMF5 preview), it possible to execute a simple configuration without having to "describe" the entire desired state of the managed computer (through the Invoke-DscConfiguration cmdlet). 
+There is already a tremendous amount of DSC resources available for configuring various aspects of a Windows computer. With the PowerShell 5.0 (Windows Management Framework 5.0), it possible to execute a simple configuration without having to "describe" the entire desired state of the managed computer (through the Invoke-DscConfiguration cmdlet). 
 
 With some plumbing, this enables us to write windows modules for Ansible which map 1-1 with DSC resources - the Ansible module will simply verify parameters, invoke the DSC configuration and record the result and send it back to Ansible.
 
