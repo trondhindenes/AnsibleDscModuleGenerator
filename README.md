@@ -12,7 +12,7 @@ The Powershell module in this repo auto-generates the required Ansible module fo
 ### Prerequisites
 The DSC resource which an Ansible module will be generated from needs to be available on the local computer (used for generating the Ansible module).
 
-PowerShell 5.0, which is included in [Windows Management Framework 5.0][https://www.microsoft.com/en-us/download/details.aspx?id=50395] need to be installed on managed nodes.
+PowerShell 5.0, which is included in [Windows Management Framework 5.0](https://www.microsoft.com/en-us/download/details.aspx?id=50395) need to be installed on managed nodes.
 
 You can read more about Windows Management Framework 5.0 [here](https://msdn.microsoft.com/en-us/powershell/wmf/releasenotes).  
 
