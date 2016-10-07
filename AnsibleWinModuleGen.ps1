@@ -31,7 +31,7 @@ Function Invoke-AnsibleWinModuleGen {
         Generate the Ansible win_file module based on the file DSC resource
     
         .LINK
-        https://github.com/trondhindenes
+        https://github.com/trondhindenes/AnsibleDscModuleGenerator
     
         .NOTES
     
@@ -45,7 +45,7 @@ Function Invoke-AnsibleWinModuleGen {
     
 		LICENSE:
 		
-		<NEED TO BE FULLFILED>
+		See LICENSE.md
 	
     #>
     
@@ -120,7 +120,7 @@ Function Invoke-AnsibleWinModuleGen {
 
     $DscResourceProperties += $AutoInstallModuleProp
     
-    $AutoSetLcmProp = "" | Select-Object Property Name, PropertyType, IsMandatory, Values, DefaultValue, Description
+    $AutoSetLcmProp = "" | Select-Object -Property Name, PropertyType, IsMandatory, Values, DefaultValue, Description
     $AutoSetLcmProp.Name = "AutoConfigureLcm"
     $AutoSetLcmProp.PropertyType = "[bool]"
     $AutoSetLcmProp.DefaultValue = "false"
@@ -369,4 +369,7 @@ Add-Content -Path $DocsFilePath -Value $MetaString
     Write-Verbose "Cleaning up $genpath"
     Remove-item $genpath -recurse -force
     Write-Verbose "finished"
+
+    #Remove module from scope
+    Remove-Module -name $DscModuleName -Force -ErrorAction SilentlyContinue
 }

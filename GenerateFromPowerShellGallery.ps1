@@ -1,8 +1,17 @@
 . .\AnsibleWinModuleGen.ps1
+$OutDirectory = "$($Env:USERPROFILE)\Documents\AnsibleDscModules"
 $ErrorActionPreference = "Stop"
+
+#Set this to "Stop or continue"
+$ModuleGenErrorActionPreference = "Continue"
 $VerbosePreference = "Continue"
 $ress = Find-DscResource -Verbose:$false
 $ress = $ress | sort Name
+
+if (!(test-path $OutDirectory))
+{
+    throw "Output directory $($OutDirectory) does not exist!"
+}
 
 
 #add the builtin resources
@@ -39,7 +48,7 @@ foreach ($res in $ress)
     if ($DownloadModule)
     {
         Write-Verbose "Installing module $modulename"
-        Install-Module $modulename -Force -Verbose:$false
+        Install-Module $modulename -Force -Verbose:$false -Scope CurrentUser
 
         #Module should now be available locally
         $LocalModule = get-module $modulename -list -ErrorAction Stop -Verbose:$false
@@ -52,11 +61,22 @@ foreach ($res in $ress)
     $helpobject.Longdescription = $Description
     $helpobject.Shortdescription = "Generated from DSC module $modulename version $($res.Version.ToString()) at $((get-date).tostring())"
     Write-verbose "Generating ansible module files"
-    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name -TargetPath "C:\Users\thadministrator\Documents\Ansible-Auto-Generated-Modules\$modulename" -TargetModuleName ("win_$($res.Name)").ToLower() -HelpObject $helpobject  -erroraction "Continue"
+    Invoke-AnsibleWinModuleGen -DscResourceName $res.Name `
+        -DscModuleName $modulename `
+        -TargetPath "$($OutDirectory)\$($modulename)" `
+        -TargetModuleName ("win_$($res.Name)").ToLower() `
+        -HelpObject $helpobject  -erroraction $ModuleGenErrorActionPreference
+    Remove-Module -Name $modulename -Force -ErrorAction SilentlyContinue
     if ($downloadmodule)
     {
         write-verbose "Removing module $modulename"
-        remove-item ($LocalModule.ModuleBase) -Recurse -Force
+        try {
+            remove-item ($LocalModule.ModuleBase) -Recurse -Force -ErrorAction Stop
+        }
+        catch {
+            Write-Warning "Unable to clean out $modulename"
+        }
+        
     }
     Write-verbose ""
     Write-verbose ""
